@@ -1,0 +1,40 @@
+.boxed {
+    border: 3px solid lightgreen;
+    box-sizing: border-box;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    width: 650px;
+    font-size: 90px;
+    color: lightblue;
+}
+
+.nonfocus {
+    border: 3px solid green;
+    box-sizing: border-box;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    width: 450px;
+    font-size: 30px;
+    opacity: 0.5;
+    color: lightblue;
+}
+
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#normal-link-text {
+    size: 15px;
+}
+
+#escape-tip-close {
+    color: orange;
+    text-decoration: none;
+}
+
+p, #escape {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* * {
+    background-color: black;
+    color: white;
+} */

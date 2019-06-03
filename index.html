@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+<head>
+	<title>Word Karaoke - Read Faster!</title>
+	<link rel="stylesheet" href="stylesheet.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<center>
+<div id="instructions-div">
+<h1>Word Karaoke - Read Faster!</h1>
+
+<form onsubmit="handleInputs(); return false;">
+	<textarea rows="10" cols="90" id="intext" placeholder="Enter eBook text or choose a file below" autofocus></textarea><br>
+	Text File (or input above) : <input type='file' accept='text/plain' id="infile" onchange="recordFileUpload();"><br>
+	Seperate by: <input type="radio" name="seperator" value="words"> Words <input type="radio" name="seperator" value="sentences"> Sentences<br>
+	<a href="" onclick="alert(timingGuideText);">Milliseconds per slide </a>: <input type="number" id="speed_input" required><br>
+	<input type="submit" value="Go!">
+</form></div><br>
+
+<div id="beforeWord" class="nonfocus">(loading)</div><br>
+<div id="wordContainer" class="boxed">(loading)</div><br>
+<div id="afterWord" class="nonfocus">(loading)</div><br><br>
+
+<div id="how">
+	<br><br>
+	<p>
+		<b>How does this work?</b><br>
+		When you put in a file, it gets split by each word. Then, the words are shown back to you in a faster format.<br><br>
+		<b>What files can I upload?</b><br>
+		You can upload plain text (usually .txt) files. DO NOT ATTEMPT to upload ebooks (such as .epub and .mobi), they will not work properly.<br>
+	</div><br><div id="escape"><b>How do I stop the karaoke?</b><br>
+		You can easily <b id="escape-tip-close">press CTRL+R</b> to stop the karaoke!<br><br>
+	</p>
+</div>
+
+</center>
+
+<script>
+
+var timingGuideText = "Higher values take longer. If you are seperating by sentences, it is generally a rule of thumb to multiply the value by x10."
+
+var consoleIntroString = `Welcome to WordKaraoke! Making reading easier for everyone!
+Warning: do not put commands in the console if you don't know what
+you are doing.
+
+This program works using a client-side combination of HTML, CSS and JavaScript.Your data will not be sent to a server or anywhere outside your computer. If you want the source code, check: https://github.com/shaunakg/word-karaoke for more information.
+
+WordKaraoke is Copyright (c) 2019/20/21 Shaunak Gadkari
+All rights reserved under the MIT license, for more information
+check: https://github.com/shaunakg/word-karaoke/blob/master/README.md.
+`; // Console introduction string
+
+console.log(consoleIntroString); // Log the string
+
+document.getElementById("wordContainer").style.display = "none"; // set the text divs to be gone
+document.getElementById("beforeWord").style.display = "none"; // set the text divs to be gone
+document.getElementById("afterWord").style.display = "none"; // set the text divs to be gone
+document.getElementById("instructions-div").style.visibility = "visible"; // set the inputs div to be visible
+document.getElementById("how").style.visibility = "visible"; // set the howto div to be visible
+
+document.body.style.backgroundColor = "white"; // White background (good for inputs)
+document.body.color = "black"; // Black text (good for inputs)
+
+var fileUploaded = false; // variable to check if a file is uploaded
+
+function recVals(text) { // Get the values and initiate the loop
+	// console.log("reached recvals");
+
+	// if (text == "") {
+	// 	var text = document.getElementById("intext").value;
+	// } // Redundant
+
+	// console.log("speed is" + speedMs);
+
+	var pureSep = document.querySelector('input[name="seperator"]:checked').value;
+	var sep="";
+
+	if (pureSep == "words") {
+		console.log("sep: " + pureSep);
+		sep = " ";
+	} else if (pureSep == "sentences") {
+		console.log("sep: " + pureSep);
+		sep = ".";
+		document.getElementById("wordContainer").style.fontSize = "20px";
+		document.getElementById("beforeWord").style.fontSize = "10px";
+		document.getElementById("afterWord").style.fontSize = "10px";
+	}
+
+	console.log("SEPERATOR: " + sep);
+
+	var speedMs = parseInt(document.getElementById("speed_input").value);
+
+	document.getElementById("intext").value = ""; // Change the value of the text field to nothing so the program
+	// doesn't repeat, this is not very useful now that it resets at the end.
+
+	var text = text.replace("\n"," ");
+
+	// console.log("text is " + text);
+	var text_split = text.split(sep); // split the text by the seperator
+	// console.log("text_split is " + text_split + ", type " + typeof(text_split));
+	var i = -1; // set the iterator (can't use a for loop as it'll just add all the delays into one big delay)
+	wordsLoop(text_split, i, speedMs); // start the main loop
+
+	// As you can see i experimented with async to sleep, but it didn't work
+	// text_split.forEach(async function(currentWord){
+	// await sleep(2000);
+	// console.log("ran , showing " + currentWord);
+	// 	document.getElementById("wordContainer").innerHTML = currentWord;
+	// });
+
+	// Don't need to return false anymore
+	// return false;
+}
+
+// loops through the words
+function wordsLoop (textArray, i, speedMs) {
+	setInterval(function () { // Repeat something every time period
+		// console.log("reached timeout function");
+		i++; // Iterate
+		if (i < textArray.length) { // If i is smaller than the words in total
+			console.log("Showing: " + textArray[i]); // Print to console
+			try {
+				document.getElementById("beforeWord").innerHTML = textArray[i-1]; // Set the value of the containers
+				document.getElementById("wordContainer").innerHTML = textArray[i]; // Set the value of the containers
+				document.getElementById("afterWord").innerHTML = textArray[i+1]; // Set the value of the containers
+			} catch (Exception) {
+				document.getElementById("wordContainer").innerHTML = textArray[i]; // Set the value of the containers
+			}
+
+		} else {document.location.href="";} // Else, redirect back to the page to stop the loop (tried using clearInterval() but it doesn't work)
+	}, speedMs) // Do it every (speedMs) milliseconds (should change to words per minute)
+}
+
+function openFile(input) { // Function to read the file
+	var reader = new FileReader(); // Create a new filereader
+	reader.onload = function(){ // When it has finished reading
+		var text = reader.result; // Write the result to the variable text
+		// console.log(text.substring(0, 200));
+		recVals(text); // start the main loop with the text from the file
+	};
+	reader.readAsText(input.files[0]); // start reading
+};
+
+function handleInputs() { // When 'GO' is pressed
+
+	document.title="CTRL+R to ABORT"; // Helps user escape
+
+	// if (document.querySelector('input[name="theme"]:checked').value == "light") {
+	// 	document.body.style.backgroundColor = "white"; // sets the background color to white
+	// 	document.body.style.color = "black"; // set the text color to black
+	// } else {
+
+	document.body.style.backgroundColor = "black"; // sets the background color to black (white on black is good for extended reading)
+	document.body.style.color = "white"; // set the text color to white
+
+	// // DEBUG
+	// document.body.style.backgroundColor = "white"; // sets the background color to white
+	// document.body.style.color = "black"; // set the text color to black
+
+	document.getElementById("wordContainer").style.display = "block"; // sets the word containers to visible
+	document.getElementById("beforeWord").style.display = "block"; // set the text divs to be hidden
+	document.getElementById("afterWord").style.display = "block"; // set the text divs to be hidden
+
+
+	document.getElementById("instructions-div").style.visibility = "hidden"; // stops the form's visibility, BUT KEEPS THE SPACE THERE
+	document.getElementById("how").style.display = "none"; // set the howto div to be gone
+	document.getElementById("escape-tip-close").style.color = "orange";
+	document.getElementById("escape-tip-close").innerHTML = '<a href="">PRESS HERE</a>'
+
+	openFullscreen(document.body); // set the website to fullscreen
+	if (fileUploaded) { // if there is a file
+		openFile(document.getElementById("infile")); // read from it
+	} else { // otherwise
+		recVals(document.getElementById("intext").value); // just go to the main loop
+	}
+}
+
+function recordFileUpload() { // If a file is uploaded, tell the program to read from it
+	fileUploaded = true; // self-explanatory
+	document.getElementById("intext").disabled = "true"; // disable text input
+	var reader = new FileReader(); // below, it sets the (disabled) text input to the content of the file so the user can see it
+	reader.onload = function(){
+		var text = reader.result;
+		// console.log(text.substring(0, 200));
+		if (text.length<20000){ document.getElementById("intext").value = text; } else { document.getElementById("intext").value = "-- file too big to be displayed here --"; }
+	};
+	reader.readAsText(document.getElementById("infile").files[0]); // Starts file reading
+}
+
+/*
+Multi-purpose fullscreen function
+When the openFullscreen() function is executed, open the video in fullscreen.
+Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet
+*/
+function openFullscreen(fullscreenelement) {
+	elem = fullscreenelement;
+	if (elem.requestFullscreen) {
+		elem.requestFullscreen(); // Native
+	} else if (elem.mozRequestFullScreen) {
+		elem.mozRequestFullScreen(); // Firefox
+	} else if (elem.webkitRequestFullscreen) {
+		elem.webkitRequestFullscreen(); // Chrome, safari, opera
+	} else if (elem.msRequestFullscreen) {
+		elem.msRequestFullscreen(); // IE9 and above (lol)
+	}
+}
+
+</script>
+</html>
