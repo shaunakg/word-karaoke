@@ -13,7 +13,7 @@
 <form onsubmit="handleInputs(); return false;">
 	<textarea rows="10" cols="90" id="intext" placeholder="Enter eBook text or choose a file below" autofocus></textarea><br>
 	Text File (or input above) : <input type='file' accept='text/plain' id="infile" onchange="recordFileUpload();"><br>
-	Seperate by: <input type="radio" name="seperator" value="words"> Words <input type="radio" name="seperator" value="sentences"> Sentences<br>
+	Seperate by: <input type="radio" name="seperator" value="words"> Words <input type="radio" name="seperator" id="sentences" value="sentences"> Sentences<br>
 	<a href="" onclick="alert(timingGuideText);">Milliseconds per slide </a>: <input type="number" id="speed_input" required><br>
 	<input type="submit" value="Go!">
 </form></div><br>
@@ -73,7 +73,7 @@ function recVals(text) { // Get the values and initiate the loop
 
 	// console.log("speed is" + speedMs);
 
-	var pureSep = document.querySelector('input[name="seperator"]:checked').value;
+	var pureSep = document.getElementById("sentences").checked ? "sentences":"words";
 	var sep="";
 
 	if (pureSep == "words") {
